@@ -1,0 +1,42 @@
+version: '3.7'
+
+volumes:
+  volume-test:
+
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: "rabbit1"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  mysql-server:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    restart: "always"
+    ports:
+      - "3306:3306"
+    volumes:
+      - volume-test:/var/lib/mysql
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - JAVA_OPTS=-Dspring.zipkin.base-url=http://zipkin:9411
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1.1
+    ports:
+      - "8180:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - DB_VENDOR=H2
+    command:
+      - "start-dev"
