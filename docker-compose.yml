@@ -40,3 +40,9 @@ services:
       - DB_VENDOR=H2
     command:
       - "start-dev"
+  ## our services ##
+  discovery-server:
+    container_name: discovery-server
+    ports:
+      - '8761:8761'
+    image: medaminer/discovery-server:latest
