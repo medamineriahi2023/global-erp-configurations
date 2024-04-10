@@ -13,7 +13,7 @@ services:
 
   mysql-server:
     image: mysql:latest
-    container_name: mysql
+    container_name: "mysql"
     environment:
       MYSQL_ROOT_PASSWORD: root
     restart: "always"
@@ -32,17 +32,53 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:21.1.1
+    container_name: "keycloak-ms"
     ports:
       - "8180:8080"
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - DB_VENDOR=H2
+      - KEYCLOAK_BIND=0.0.0.0
     command:
       - "start-dev"
-  ## our services ##
+      - "--import-realm"
+    volumes:
+      - ./export.json:/opt/keycloak/data/import/realm.json
+    networks:
+      - my-network
+
   discovery-server:
-    container_name: discovery-server
+    container_name: discovery-service
     ports:
       - '8761:8761'
     image: medaminer/discovery-server:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - my-network
+
+  api-gateway:
+    container_name: api-gateway
+    ports:
+      - '9092:9092'
+    image: medaminer/api-gateway:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - my-network
+  user-management:
+    container_name: user-management
+    ports:
+      - '9095:9095'
+    image: medaminer/user-management:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - my-network
+    depends_on:
+      - keycloak
+
+networks:
+  my-network:
+    driver: bridge
