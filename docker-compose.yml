@@ -109,6 +109,22 @@ services:
       - discovery-server
       - zipkin
       - rabbitmq
+  project-manager-portal:
+    container_name: project-manager-portal
+    ports:
+      - '9091:9091'
+    image: medaminer/project-manager-portal:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - my-network
+    depends_on:
+      - user-management
+      - self-service-portal
+      - mysql
+      - discovery-server
+      - zipkin
+      - rabbitmq
 
 networks:
   my-network:
