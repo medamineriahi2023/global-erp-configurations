@@ -16,7 +16,14 @@ services:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
       RABBITMQ_DEFAULT_VHOST: "/"
-
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: evaluation
   mysql:
     image: mysql:latest
     container_name: "mysql"
@@ -29,7 +36,6 @@ services:
       - "3306:3306"
     volumes:
       - volume-test:/var/lib/mysql
-
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
@@ -125,6 +131,21 @@ services:
       - discovery-server
       - zipkin
       - rabbitmq
+  evaluation-portal:
+    container_name: evaluation-portal
+    ports:
+      - '9096:9096'
+    image: medaminer/evaluation-portal:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - my-network
+    depends_on:
+      - user-management
+      - discovery-server
+      - zipkin
+      - mongo
+
 
 networks:
   my-network:
