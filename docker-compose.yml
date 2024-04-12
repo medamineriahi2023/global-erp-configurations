@@ -147,6 +147,31 @@ services:
       - discovery-server
       - zipkin
       - mongo
+  document-manager-portal:
+    container_name: document-manager-portal
+    ports:
+      - '9097:9097'
+    image: medaminer/document-manager-portal:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - my-network
+    depends_on:
+      - discovery-server
+      - zipkin
+      - mysql
+  config-server:
+    container_name: config-server
+    ports:
+      - '9093:9093'
+    image: medaminer/config-server:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - my-network
+    depends_on:
+      - discovery-server
+      - zipkin
 
 
 networks:
